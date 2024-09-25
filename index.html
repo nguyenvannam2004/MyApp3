@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Dự Đoán Bệnh Tim</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dự Đoán Bệnh Tim</h1>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="age">Tuổi:</label>
+                <input type="number" class="form-control" id="age" required>
+            </div>
+            <div class="form-group">
+                <label for="sex">Giới tính:</label>
+                <select class="form-control" id="sex">
+                    <option value="0">Nữ</option>
+                    <option value="1">Nam</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cp">Loại đau ngực:</label>
+                <select class="form-control" id="cp">
+                    <option value="0">Không có đau ngực</option>
+                    <option value="1">Đau ngực nhẹ</option>
+                    <option value="2">Đau ngực vừa</option>
+                    <option value="3">Đau ngực nặng</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="trestbps">Huyết áp tâm thu:</label>
+                <input type="number" class="form-control" id="trestbps" required>
+            </div>
+            <div class="form-group">
+                <label for="chol">Cholesterol:</label>
+                <input type="number" class="form-control" id="chol" required>
+            </div>
+            <div class="form-group">
+                <label for="fbs">Đường huyết:</label>
+                <select class="form-control" id="fbs">
+                    <option value="0">Dưới 120 mg/dl</option>
+                    <option value="1">120 mg/dl hoặc cao hơn</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="restecg">Kết quả điện tâm đồ:</label>
+                <select class="form-control" id="restecg">
+                    <option value="0">Bình thường</option>
+                    <option value="1">Có sóng ST chênh lên</option>
+                    <option value="2">Có sóng ST chênh xuống</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="thalach">Nhịp tim tối đa:</label>
+                <input type="number" class="form-control" id="thalach" required>
+            </div>
+            <div class="form-group">
+                <label for="exang">Cơn đau thắt ngực khi vận động:</label>
+                <select class="form-control" id="exang">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="oldpeak">Oldpeak:</label>
+                <input type="number" class="form-control" id="oldpeak" step="0.1" required>
+            </div>
+            <div class="form-group">
+                <label for="slope">Độ dốc của đoạn ST:</label>
+                <select class="form-control" id="slope">
+                    <option value="0">Dốc lên</option>
+                    <option value="1">Bằng phẳng</option>
+                    <option value="2">Dốc xuống</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ca">Số mạch máu bị thu hẹp:</label>
+                <input type="number" class="form-control" id="ca" required>
+            </div>
+            <div class="form-group">
+                <label for="thal">Thal:</label>
+                <select class="form-control" id="thal">
+                    <option value="0">Bình thường</option>
+                    <option value="1">Khuyết tật cố hữu</option>
+                    <option value="2">Khuyết tật tạm thời</option>
+                    <option value="3">Không rõ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="model">Chọn mô hình:</label>
+                <select class="form-control" id="model">
+                    <option value="model1">Hồi quy logic</option>
+                    <option value="model2">Mạng nơ-ron</option>
+                    <option value="voting_classifier">Voting Classification</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Dự Đoán</button>
+        </form>
+        <div id="result" class="mt-4" style="display:none;">
+            <h3>Kết quả dự đoán:</h3>
+            <p id="prediction"></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none'; // Ẩn ô kết quả nếu có
+            const data = {
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                cp: document.getElementById('cp').value,
+                trestbps: document.getElementById('trestbps').value,
+                chol: document.getElementById('chol').value,
+                fbs: document.getElementById('fbs').value,
+                restecg: document.getElementById('restecg').value,
+                thalach: document.getElementById('thalach').value,
+                exang: document.getElementById('exang').value,
+                oldpeak: document.getElementById('oldpeak').value,
+                slope: document.getElementById('slope').value,
+                ca: document.getElementById('ca').value,
+                thal: document.getElementById('thal').value,
+                model: document.getElementById('model').value
+            };
+    
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Result from server:', result); // Log kết quả từ server
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block'; // Hiện ô kết quả
+                document.getElementById('prediction').innerText = result.message; // Hiển thị thông báo kết quả
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>    
+</body>
+</html>
